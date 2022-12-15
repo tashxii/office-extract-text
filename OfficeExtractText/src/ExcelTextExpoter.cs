@@ -51,7 +51,13 @@ namespace OfficeExtractText
                             List<string> otherContents = new List<string>();
                             foreach (Excel.Shape shape in sheet.ComObject.Shapes)
                             {
-                                ExtractShapesContents(otherContents, shape);
+                                try{
+                                    ExtractShapesContents(otherContents, shape);
+                                }
+                                catch(System.Runtime.InteropServices.COMException)
+                                {
+                                    //Ignore shape's error. Old Excel version may throws error because of unmaching api.
+                                }
                             }
                             foreach (Excel.Comment comment in sheet.ComObject.Comments)
                             {
@@ -65,7 +71,7 @@ namespace OfficeExtractText
                 finally
                 {
                     book.ComObject.Close(false);
-                    //merge contents after closing 
+                    //merge contents after closing
                     if (success)
                     {
                         int i = 0;
@@ -91,7 +97,7 @@ namespace OfficeExtractText
         {
             if (shape.Type == Microsoft.Office.Core.MsoShapeType.msoGroup)
             {
-                //To check group or not, use only shape.Type or shape.AutoShapeType, 
+                //To check group or not, use only shape.Type or shape.AutoShapeType,
                 //because other ways like shape.GroupItem.Count & shape.Ungroup thow an exception when shape is not a group.
                 var groupShapes = shape.GroupItems;
                 foreach(Excel.Shape subShape in shape.GroupItems)
